@@ -5,8 +5,6 @@ challenges.
 
 ## Running Workloads
 
-Build the Docker image containing Maelstrom:
-
 ```bash
 docker build -t maelstrom .
 ```
