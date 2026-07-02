@@ -11,6 +11,12 @@ Build the Docker image containing Maelstrom:
 docker build -t maelstrom .
 ```
 
+### "echo":
+
+```bash
+./maelstrom.sh test -w echo --bin /usr/local/bin/echo --node-count 1 --time-limit 10
+```
+
 ## License
 
 This project is licensed under the [MIT License].
