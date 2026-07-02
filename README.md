@@ -3,9 +3,13 @@
 Solutions to the [Gossip Glomers](https://fly.io/dist-sys/) distributed systems
 challenges.
 
-## Solutions
+## Running Workloads
 
-TODO
+Build the Docker image containing Maelstrom:
+
+```bash
+docker build -t maelstrom .
+```
 
 ## License
 

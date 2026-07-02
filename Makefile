@@ -13,7 +13,7 @@ LDFLAGS := -s -w
 .PHONY: build
 build: ## Build all 'cmd' binaries
 	@mkdir -p $(BUILD_DIR)
-	$(GO) build \
+	@$(GO) build \
 		$(GOFLAGS) \
 		-ldflags "$(LDFLAGS)" \
 		-gcflags "$(CFLAGS)" \
