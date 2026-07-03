@@ -15,6 +15,12 @@ docker build -t maelstrom .
 ./maelstrom.sh test -w echo --bin /usr/local/bin/echo --node-count 1 --time-limit 10
 ```
 
+### "unique-ids":
+
+```bash
+./maelstrom.sh test -w unique-ids --bin /usr/local/bin/unique_ids --time-limit 30 --rate 1000 --node-count 3 --availability total --nemesis partition
+```
+
 ## License
 
 This project is licensed under the [MIT License].
