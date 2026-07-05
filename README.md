@@ -83,7 +83,7 @@ broadcast.New(n).
 ./maelstrom.sh test -w kafka --bin /usr/local/bin/kafka --node-count 1 --concurrency 2n --time-limit 20 --rate 1000
 ```
 
-### "kafka" (multi-node):
+### "kafka" (multi-node and efficient):
 
 ```bash
 ./maelstrom.sh test -w kafka --bin /usr/local/bin/kafka --node-count 2 --concurrency 2n --time-limit 20 --rate 1000
