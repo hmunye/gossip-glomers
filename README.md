@@ -101,6 +101,12 @@ broadcast.New(n).
 ./maelstrom.sh test -w txn-rw-register --bin /usr/local/bin/txn --node-count 2 --concurrency 2n --time-limit 20 --rate 1000 --consistency-models read-uncommitted
 ```
 
+### "txn-rw-register" (multi-node, read uncommitted, and fault-tolerant)
+
+```bash
+./maelstrom.sh test -w txn-rw-register --bin /usr/local/bin/txn --node-count 2 --concurrency 2n --time-limit 20 --rate 1000 --consistency-models read-uncommitted --availability total --nemesis partition
+```
+
 ## License
 
 This project is licensed under the [MIT License].
