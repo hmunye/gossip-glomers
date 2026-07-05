@@ -89,6 +89,12 @@ broadcast.New(n).
 ./maelstrom.sh test -w kafka --bin /usr/local/bin/kafka --node-count 2 --concurrency 2n --time-limit 20 --rate 1000
 ```
 
+### "txn-rw-register" (single-node and read uncommitted)
+
+```bash
+./maelstrom.sh test -w txn-rw-register --bin /usr/local/bin/txn --node-count 1 --time-limit 20 --rate 1000 --concurrency 2n --consistency-models read-uncommitted --availability total
+```
+
 ## License
 
 This project is licensed under the [MIT License].
