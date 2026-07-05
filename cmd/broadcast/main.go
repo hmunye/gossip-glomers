@@ -12,8 +12,8 @@ func main() {
 	n := maelstrom.NewNode()
 
 	broadcast.New(n).
-		WithFanout(3).
-		WithInterval(150 * time.Millisecond).
+		WithFanout(4).
+		WithInterval(120 * time.Millisecond).
 		Run()
 
 	if err := n.Run(); err != nil {

@@ -39,6 +39,25 @@ docker build -t maelstrom .
 ./maelstrom.sh test -w broadcast --bin /usr/local/bin/broadcast --node-count 5 --time-limit 20 --rate 10 --nemesis partition
 ```
 
+### "broadcast" (efficient):
+
+```bash
+./maelstrom.sh test -w broadcast --bin /usr/local/bin/broadcast --node-count 25 --time-limit 20 --rate 100 --latency 100
+```
+
+#### 3d: Efficient Broadcast, Part I:
+
+- Messages-per-operation is below 30
+- Median latency is below 400ms
+- Maximum latency is below 600ms
+
+```go
+broadcast.New(n).
+    WithFanout(4).
+    WithInterval(120 * time.Millisecond).
+    Run()
+```
+
 ## License
 
 This project is licensed under the [MIT License].
