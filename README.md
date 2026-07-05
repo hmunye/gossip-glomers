@@ -71,6 +71,12 @@ broadcast.New(n).
     Run()
 ```
 
+### "g-counter":
+
+```bash
+./maelstrom.sh test -w g-counter --bin /usr/local/bin/g_counter --node-count 3 --rate 100 --time-limit 20 --nemesis partition
+```
+
 ## License
 
 This project is licensed under the [MIT License].
