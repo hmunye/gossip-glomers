@@ -58,6 +58,19 @@ broadcast.New(n).
     Run()
 ```
 
+#### 3e: Efficient Broadcast, Part II:
+
+- Messages-per-operation is below 20
+- Median latency is below 1 second
+- Maximum latency is below 2 seconds
+
+```go
+broadcast.New(n).
+    WithFanout(3).
+    WithInterval(150 * time.Millisecond).
+    Run()
+```
+
 ## License
 
 This project is licensed under the [MIT License].
