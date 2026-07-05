@@ -77,6 +77,12 @@ broadcast.New(n).
 ./maelstrom.sh test -w g-counter --bin /usr/local/bin/g_counter --node-count 3 --rate 100 --time-limit 20 --nemesis partition
 ```
 
+### "kafka" (single-node):
+
+```bash
+./maelstrom.sh test -w kafka --bin /usr/local/bin/kafka --node-count 1 --concurrency 2n --time-limit 20 --rate 1000
+```
+
 ## License
 
 This project is licensed under the [MIT License].
