@@ -27,6 +27,12 @@ docker build -t maelstrom .
 ./maelstrom.sh test -w broadcast --bin /usr/local/bin/broadcast --node-count 1 --time-limit 20 --rate 10
 ```
 
+### "broadcast" (multi-node):
+
+```bash
+./maelstrom.sh test -w broadcast --bin /usr/local/bin/broadcast --node-count 5 --time-limit 20 --rate 10
+```
+
 ## License
 
 This project is licensed under the [MIT License].
