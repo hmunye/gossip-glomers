@@ -4,35 +4,35 @@
 // In a distributed system, nodes do not share memory, so coordination and
 // information exchange must occur explicitly over the network. A naive approach
 // is full fan-out broadcasting, where each node sends every message directly to
-// all other nodes. While this achieves immediate dissemination in small systems,
-// it does not scale: each broadcast generates O(N) outbound messages per node,
-// leading to O(N^2) total traffic across the cluster. In addition, this approach
-// is not tolerant to partitions or partial failures, since dropped messages are
-// not naturally recovered.
+// all other nodes. While this achieves immediate dissemination in small
+// systems, it does not scale: each broadcast generates O(N) outbound messages
+// per node, leading to O(N^2) total traffic across the cluster. In addition,
+// this approach is not tolerant to partitions or partial failures, since
+// dropped messages are not naturally recovered.
 //
 // Gossip protocols address this by replacing global fan-out with repeated local
 // exchange. Each node forwards messages to a small, typically random subset of
 // peers. Those peers repeat the process, causing information to propagate
 // probabilistically across the system over multiple rounds.
 //
-// From a systems perspective, this design trades immediate consistency for
-// scalable, fault-tolerant dissemination:
+// From a systems perspective, this approach trades immediate consistency for
+// scalable, fault-tolerant dissemination, with the following properties:
 //
-//   - Partition Tolerance: messages continue to propagate along any available
+//   - Partition tolerance: messages continue to propagate along any available
 //     network paths; partitions slow convergence rather than preventing it
 //
-//   - Eventual Consistency: given sufficient rounds of communication and a
+//   - Eventual consistency: given sufficient rounds of communication and a
 //     sufficiently connected network, all nodes eventually converge on the same
 //     set of messages
 //
-//   - Partial Failure Tolerance: dissemination relies on redundant peer-to-peer
+//   - Partial failure tolerance: dissemination relies on redundant peer-to-peer
 //     propagation, so the failure or unavailability of individual nodes reduces
 //     redundancy but does not prevent eventual convergence
 //
 // The primary tradeoff is latency and redundancy. Information spreads over
-// multiple hops rather than directly, so convergence time depends on the
-// fan-out (number of peers contacted per round) and the gossip interval (how
-// frequently gossip rounds occur).
+// multiple hops rather than directly, so convergence time depends on fan-out
+// (number of peers contacted per round) and the gossip interval (how frequently
+// gossip rounds occur).
 package broadcast
 
 import (
@@ -47,7 +47,7 @@ import (
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
-// Broadcaster maintains the protocol state for a [maelstrom.Node].
+// Broadcaster represents the protocol state for a [maelstrom.Node].
 type Broadcaster struct {
 	n *maelstrom.Node
 
@@ -232,8 +232,7 @@ func (b *Broadcaster) gossip() {
 // deltaMessages returns the set difference between locally stored messages and
 // messages already known by a specific peer.
 //
-// Sending only missing messages reduces redundant transmission and improves
-// gossip efficiency by reducing network traffic and payload size.
+// Transmitting missing messages only reduces network traffic and payload size.
 func (b *Broadcaster) deltaMessages(peer_msgs map[int]struct{}) []int {
 	b.msgMu.Lock()
 	defer b.msgMu.Unlock()
@@ -251,8 +250,8 @@ func (b *Broadcaster) deltaMessages(peer_msgs map[int]struct{}) []int {
 
 // snapshotMessages returns a snapshot of the current message set as a slice.
 //
-// The snapshot is used for transmission and represents a point-in-time view
-// of the Broadcaster’s state.
+// Snapshots are used for transmission and represent a point-in-time view of the
+// Broadcaster’s state.
 func (b *Broadcaster) snapshotMessages() []int {
 	b.msgMu.Lock()
 	defer b.msgMu.Unlock()
@@ -266,10 +265,10 @@ func (b *Broadcaster) snapshotMessages() []int {
 	return msgs
 }
 
-// shufflePeers randomizes peer order to vary gossip paths across rounds.
+// shufflePeers randomizes peer order within the given slice.
 //
-// This reduces systematic bias in propagation paths, avoids network hotspots,
-// and improves robustness and convergence behavior.
+// Randomization of peers reduces systematic bias in propagation paths, avoids
+// network hotspots, and improves robustness and convergence behavior.
 func shufflePeers(peers []string) {
 	rand.Shuffle(len(peers), func(i, j int) {
 		peers[i], peers[j] = peers[j], peers[i]
