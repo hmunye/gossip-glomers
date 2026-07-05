@@ -47,6 +47,14 @@ import (
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
+type BroadcastRequest struct {
+	Message int `json:"message"`
+}
+
+type GossipRequest struct {
+	Messages []int `json:"messages"`
+}
+
 // Broadcaster represents the protocol state for a [maelstrom.Node].
 type Broadcaster struct {
 	n *maelstrom.Node
@@ -105,7 +113,7 @@ func (b *Broadcaster) WithTimeout(timeout time.Duration) *Broadcaster {
 // messages to its peers in the background.
 func (b *Broadcaster) Run() {
 	b.n.Handle("broadcast", func(msg maelstrom.Message) error {
-		var body map[string]any
+		var body BroadcastRequest
 		if err := json.Unmarshal(msg.Body, &body); err != nil {
 			return err
 		}
@@ -113,36 +121,23 @@ func (b *Broadcaster) Run() {
 		b.msgMu.Lock()
 		defer b.msgMu.Unlock()
 
-		b.messages[int(body["message"].(float64))] = struct{}{}
+		b.messages[body.Message] = struct{}{}
 
-		delete(body, "message")
-
-		body["type"] = "broadcast_ok"
-
-		return b.n.Reply(msg, body)
+		return b.n.Reply(msg, map[string]any{"type": "broadcast_ok"})
 	})
 
 	b.n.Handle("read", func(msg maelstrom.Message) error {
-		body := make(map[string]any)
-
-		body["type"] = "read_ok"
-		body["messages"] = b.snapshotMessages()
-
-		return b.n.Reply(msg, body)
+		return b.n.Reply(msg, map[string]any{"type": "read_ok", "messages": b.snapshotMessages()})
 	})
 
 	b.n.Handle("topology", func(msg maelstrom.Message) error {
-		body := make(map[string]any)
-
 		// Ignoring the provided topology in favor of a random peer subset
 		// derived from the full cluster each round.
-		body["type"] = "topology_ok"
-
-		return b.n.Reply(msg, body)
+		return b.n.Reply(msg, map[string]any{"type": "topology_ok"})
 	})
 
 	b.n.Handle("gossip", func(msg maelstrom.Message) error {
-		var body map[string]any
+		var body GossipRequest
 		if err := json.Unmarshal(msg.Body, &body); err != nil {
 			return err
 		}
@@ -150,14 +145,11 @@ func (b *Broadcaster) Run() {
 		b.msgMu.Lock()
 		defer b.msgMu.Unlock()
 
-		for _, msg := range body["messages"].([]any) {
-			b.messages[int(msg.(float64))] = struct{}{}
+		for _, msg := range body.Messages {
+			b.messages[msg] = struct{}{}
 		}
 
-		delete(body, "messages")
-		body["type"] = "gossip_ok"
-
-		return b.n.Reply(msg, body)
+		return b.n.Reply(msg, map[string]any{"type": "gossip_ok"})
 	})
 
 	go b.gossip()
@@ -197,16 +189,11 @@ func (b *Broadcaster) gossip() {
 				continue
 			}
 
-			body := make(map[string]any)
-
-			body["type"] = "gossip"
-			body["messages"] = delta
-
 			go func() {
 				ctx, cancel := context.WithTimeout(context.Background(), b.timeout)
 				defer cancel()
 
-				_, err := b.n.SyncRPC(ctx, peer, body)
+				_, err := b.n.SyncRPC(ctx, peer, map[string]any{"type": "gossip", "messages": delta})
 				if err != nil {
 					log.Println(err)
 					return

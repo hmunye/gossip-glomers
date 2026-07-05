@@ -10,6 +10,10 @@ import (
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
+type AddRequest struct {
+	Delta int `json:"delta"`
+}
+
 func main() {
 	n := maelstrom.NewNode()
 
@@ -40,12 +44,10 @@ func main() {
 	// there are no write conflicts across the cluster and no need for
 	// coordination or consensus.
 	n.Handle("add", func(msg maelstrom.Message) error {
-		var body map[string]any
+		var body AddRequest
 		if err := json.Unmarshal(msg.Body, &body); err != nil {
 			return err
 		}
-
-		delta := int(body["delta"].(float64))
 
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
@@ -66,7 +68,7 @@ func main() {
 
 		mu.Lock()
 
-		err = kv.Write(ctx, n.ID(), val.(int)+delta)
+		err = kv.Write(ctx, n.ID(), val.(int)+body.Delta)
 
 		mu.Unlock()
 
@@ -74,10 +76,7 @@ func main() {
 			return err
 		}
 
-		delete(body, "delta")
-		body["type"] = "add_ok"
-
-		return n.Reply(msg, body)
+		return n.Reply(msg, map[string]any{"type": "add_ok"})
 	})
 
 	// The logical value of the counter is computed by reading each node's
@@ -127,12 +126,7 @@ func main() {
 			counter += peer_count
 		}
 
-		body := make(map[string]any)
-
-		body["type"] = "read_ok"
-		body["value"] = counter
-
-		return n.Reply(msg, body)
+		return n.Reply(msg, map[string]any{"type": "read_ok", "value": counter})
 	})
 
 	if err := n.Run(); err != nil {

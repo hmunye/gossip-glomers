@@ -32,10 +32,6 @@ func main() {
 	// nodes, and during a network partition, ID generation may become
 	// unavailable if a quorum cannot be reached.
 	n.Handle("generate", func(msg maelstrom.Message) error {
-		body := make(map[string]any)
-
-		body["type"] = "generate_ok"
-
 		// Alternative Design:
 		//
 		// Snowflake ID - 64-bit identifier composed of fixed bit fields.
@@ -56,9 +52,7 @@ func main() {
 		// the finite 41-bit timestamp range to within the expected operational
 		// lifetime of the system, maximizing the usable duration before
 		// timestamp overflow.
-		body["id"] = fmt.Sprintf("%s-%d", n.ID(), counter.Add(1))
-
-		return n.Reply(msg, body)
+		return n.Reply(msg, map[string]any{"type": "generate_ok", "id": fmt.Sprintf("%s-%d", n.ID(), counter.Add(1))})
 	})
 
 	if err := n.Run(); err != nil {
